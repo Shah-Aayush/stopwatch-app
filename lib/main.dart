@@ -5,9 +5,20 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:stopwatch/screens/records_screen.dart';
-import 'package:stopwatch/screens/timer_screen.dart';
 
-void main() {
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'models/lap.dart';
+
+bool? isNewLaunch;
+SharedPreferences? prefs;
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  prefs = await SharedPreferences.getInstance();
+  isNewLaunch = prefs!.getBool("isNewLaunch");
+  print('isNewLaunch:$isNewLaunch');
+  await prefs!.setBool("isNewLaunch", false);
   runApp(const MyApp());
 }
 
@@ -44,8 +55,27 @@ class _MyHomePageState extends State<MyHomePage> {
   late Timer timer;
   bool active = false;
   bool isHourFormat = false;
-  List laps = [];
+  List<Lap> laps = [];
   SelectedSegment currentSegment = SelectedSegment.timer;
+
+  _setLaps() async {
+    List<Lap> initLaps = [];
+    final String encodedLaps = Lap.encode(initLaps);
+    await prefs!.setString('laps', encodedLaps);
+    // final String? lapsString = prefs!.getString('laps');
+    // laps = Lap.decode(lapsString!);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (isNewLaunch == null) {
+      print('isNewLaunch is null');
+      _setLaps();
+    } else {
+      print('isNewLaunch is not null : $isNewLaunch');
+    }
+  }
 
   @override
   void dispose() {
@@ -63,9 +93,20 @@ class _MyHomePageState extends State<MyHomePage> {
     String lap = isHourFormat
         ? '${(hours >= 10) ? '$hours' : '0$hours'}:${(minutes >= 10) ? '$minutes' : '0$minutes'}:${(seconds >= 10) ? '$seconds' : '0$seconds'}'
         : '${(minutes >= 10) ? '$minutes' : '0$minutes'}:${(seconds >= 10) ? '$seconds' : '0$seconds'}.${(roundOffMilliSeconds(milliseconds) >= 10) ? '${roundOffMilliSeconds(milliseconds)}' : '0${roundOffMilliSeconds(milliseconds)}'}';
-    setState(() {
-      laps.add(lap);
-    });
+
+    setState(
+      () {
+        laps.add(
+          Lap(
+            title: 'Lap ${laps.length}',
+            hours: hours,
+            minutes: minutes,
+            seconds: seconds,
+            milliseconds: milliseconds,
+          ),
+        );
+      },
+    );
   }
 
   void stop() {
@@ -187,28 +228,24 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
               ),
               currentSegment == SelectedSegment.record
-                  ? const RecordsScreen()
-                  : TimerScreen(
-                      hours: hours,
-                      minutes: minutes,
-                      seconds: seconds,
-                      milliseconds: milliseconds,
-                      isHourFormat: isHourFormat)
-              // Container(
-              //     margin: const EdgeInsets.symmetric(vertical: 50.0),
-              //     child: Text(
-              //       isHourFormat
-              //           ? '${(hours >= 10) ? '$hours' : '0$hours'}:${(minutes >= 10) ? '$minutes' : '0$minutes'}:${(seconds >= 10) ? '$seconds' : '0$seconds'}'
-              //           : '${(minutes >= 10) ? '$minutes' : '0$minutes'}:${(seconds >= 10) ? '$seconds' : '0$seconds'}.${(roundOffMilliSeconds(milliseconds) >= 10) ? '${roundOffMilliSeconds(milliseconds)}' : '0${roundOffMilliSeconds(milliseconds)}'}',
-              //       style: const TextStyle(
-              //         fontSize: 70.0,
-              //         fontWeight: FontWeight.w600,
-              //         color: Colors.white,
-              //         fontFeatures: [FontFeature.tabularFigures()],
-              //       ),
-              //     ),
-              //   ),
-              ,
+                  ? RecordsScreen(
+                      prefs: prefs,
+                      // data: {'prefs': getLocalData()},
+                    )
+                  : Container(
+                      margin: const EdgeInsets.symmetric(vertical: 50.0),
+                      child: Text(
+                        isHourFormat
+                            ? '${(hours >= 10) ? '$hours' : '0$hours'}:${(minutes >= 10) ? '$minutes' : '0$minutes'}:${(seconds >= 10) ? '$seconds' : '0$seconds'}'
+                            : '${(minutes >= 10) ? '$minutes' : '0$minutes'}:${(seconds >= 10) ? '$seconds' : '0$seconds'}.${(roundOffMilliSeconds(milliseconds) >= 10) ? '${roundOffMilliSeconds(milliseconds)}' : '0${roundOffMilliSeconds(milliseconds)}'}',
+                        style: const TextStyle(
+                          fontSize: 70.0,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                          fontFeatures: [FontFeature.tabularFigures()],
+                        ),
+                      ),
+                    ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -357,12 +394,12 @@ class _MyHomePageState extends State<MyHomePage> {
                           margin: const EdgeInsets.symmetric(
                             vertical: 5.0,
                           ),
-                          child: Text(
-                            '$index - ${laps[index]}',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 30.0,
+                          child: ListTile(
+                            title: Text(laps[index].title),
+                            trailing: Text(
+                              isHourFormat
+                                  ? '${(laps[index].hours >= 10) ? '${laps[index].hours}' : '0${laps[index].hours}'}:${(laps[index].minutes >= 10) ? '${laps[index].minutes}' : '0${laps[index].minutes}'}:${(laps[index].seconds >= 10) ? '${laps[index].seconds}' : '0${laps[index].seconds}'}'
+                                  : '${(laps[index].minutes >= 10) ? '${laps[index].minutes}' : '0${laps[index].minutes}'}:${(laps[index].seconds >= 10) ? '${laps[index].seconds}' : '0${laps[index].seconds}'}.${(roundOffMilliSeconds(laps[index].milliseconds) >= 10) ? '${roundOffMilliSeconds(laps[index].milliseconds)}' : '0${roundOffMilliSeconds(laps[index].milliseconds)}'}',
                             ),
                           ),
                         );
