@@ -4,6 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
+import 'package:stopwatch/screens/records_screen.dart';
+import 'package:stopwatch/screens/timer_screen.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -34,12 +37,15 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+enum SelectedSegment { timer, record }
+
 class _MyHomePageState extends State<MyHomePage> {
   int milliseconds = 0, seconds = 0, minutes = 0, hours = 0;
   late Timer timer;
   bool active = false;
   bool isHourFormat = false;
   List laps = [];
+  SelectedSegment currentSegment = SelectedSegment.timer;
 
   @override
   void dispose() {
@@ -119,6 +125,14 @@ class _MyHomePageState extends State<MyHomePage> {
     return (milliseconds / 10).round();
   }
 
+  Widget buildRecords() {
+    return const Text('record here!');
+  }
+
+  Widget buildTimer() {
+    return const Text('timer here!');
+  }
+
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
@@ -137,27 +151,72 @@ class _MyHomePageState extends State<MyHomePage> {
                   color: Colors.white,
                 ),
               ),
-              CupertinoSwitch(
-                  value: isHourFormat,
-                  onChanged: (bool? value) {
-                    setState(() {
-                      isHourFormat = value!;
-                    });
-                  }),
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 50.0),
-                child: Text(
-                  isHourFormat
-                      ? '${(hours >= 10) ? '$hours' : '0$hours'}:${(minutes >= 10) ? '$minutes' : '0$minutes'}:${(seconds >= 10) ? '$seconds' : '0$seconds'}'
-                      : '${(minutes >= 10) ? '$minutes' : '0$minutes'}:${(seconds >= 10) ? '$seconds' : '0$seconds'}.${(roundOffMilliSeconds(milliseconds) >= 10) ? '${roundOffMilliSeconds(milliseconds)}' : '0${roundOffMilliSeconds(milliseconds)}'}',
-                  style: const TextStyle(
-                    fontSize: 70.0,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                    fontFeatures: [FontFeature.tabularFigures()],
+              CupertinoSlidingSegmentedControl<SelectedSegment>(
+                children: const {
+                  SelectedSegment.timer: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 15,
+                      vertical: 5,
+                    ),
+                    child: Text(
+                      'Timer',
+                      style: TextStyle(
+                        fontSize: 30,
+                      ),
+                    ),
                   ),
-                ),
+                  SelectedSegment.record: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 15,
+                      vertical: 5,
+                    ),
+                    child: Text(
+                      'Records',
+                      style: TextStyle(
+                        fontSize: 30,
+                      ),
+                    ),
+                  ),
+                },
+                onValueChanged: (value) {
+                  setState(() {
+                    currentSegment = value!;
+                  });
+                },
+                groupValue: currentSegment,
+                // thumbColor: CupertinoColors.activeGreen,
               ),
+              CupertinoSwitch(
+                value: isHourFormat,
+                onChanged: (bool? value) {
+                  setState(() {
+                    isHourFormat = value!;
+                  });
+                },
+              ),
+              currentSegment == SelectedSegment.record
+                  ? const RecordsScreen()
+                  : TimerScreen(
+                      hours: hours,
+                      minutes: minutes,
+                      seconds: seconds,
+                      milliseconds: milliseconds,
+                      isHourFormat: isHourFormat)
+              // Container(
+              //     margin: const EdgeInsets.symmetric(vertical: 50.0),
+              //     child: Text(
+              //       isHourFormat
+              //           ? '${(hours >= 10) ? '$hours' : '0$hours'}:${(minutes >= 10) ? '$minutes' : '0$minutes'}:${(seconds >= 10) ? '$seconds' : '0$seconds'}'
+              //           : '${(minutes >= 10) ? '$minutes' : '0$minutes'}:${(seconds >= 10) ? '$seconds' : '0$seconds'}.${(roundOffMilliSeconds(milliseconds) >= 10) ? '${roundOffMilliSeconds(milliseconds)}' : '0${roundOffMilliSeconds(milliseconds)}'}',
+              //       style: const TextStyle(
+              //         fontSize: 70.0,
+              //         fontWeight: FontWeight.w600,
+              //         color: Colors.white,
+              //         fontFeatures: [FontFeature.tabularFigures()],
+              //       ),
+              //     ),
+              //   ),
+              ,
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: CrossAxisAlignment.start,
