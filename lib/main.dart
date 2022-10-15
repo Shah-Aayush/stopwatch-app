@@ -57,6 +57,9 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isHourFormat = false;
   List<Lap> laps = [];
   SelectedSegment currentSegment = SelectedSegment.timer;
+  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
+  final Tween<Offset> _offset =
+      Tween(begin: const Offset(0, -1), end: const Offset(0, 0));
 
   _setLaps() async {
     List<Lap> initLaps = [];
@@ -75,6 +78,9 @@ class _MyHomePageState extends State<MyHomePage> {
     } else {
       print('isNewLaunch is not null : $isNewLaunch');
     }
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      // addLap();
+    });
   }
 
   @override
@@ -83,17 +89,48 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
 
+  void _removeItem(int index) {
+    if (index < 0) return;
+    _listKey.currentState!.removeItem(
+      index,
+      (_, animation) {
+        return SizeTransition(
+          sizeFactor: animation,
+          child: const Card(
+            margin: EdgeInsets.all(10),
+            // color: Colors.red,
+            child: ListTile(
+              title: Text(
+                'deleted',
+                style: TextStyle(fontSize: 24),
+              ),
+            ),
+          ),
+        );
+      },
+      duration: const Duration(milliseconds: 200),
+    );
+    laps.removeAt(index);
+  }
+
   void cleanLaps() {
-    setState(() {
-      laps = [];
+    Future ft = Future(() {});
+
+    int counter = laps.length - 1;
+
+    laps.forEach((Lap lap) {
+      ft = ft.then((_) {
+        return Future.delayed(const Duration(milliseconds: 100), () {
+          _removeItem(counter--);
+        });
+      });
     });
+    // setState(() {
+    //   laps = [];
+    // });
   }
 
   void addLap() {
-    String lap = isHourFormat
-        ? '${(hours >= 10) ? '$hours' : '0$hours'}:${(minutes >= 10) ? '$minutes' : '0$minutes'}:${(seconds >= 10) ? '$seconds' : '0$seconds'}'
-        : '${(minutes >= 10) ? '$minutes' : '0$minutes'}:${(seconds >= 10) ? '$seconds' : '0$seconds'}.${(roundOffMilliSeconds(milliseconds) >= 10) ? '${roundOffMilliSeconds(milliseconds)}' : '0${roundOffMilliSeconds(milliseconds)}'}';
-
     setState(
       () {
         laps.add(
@@ -104,6 +141,11 @@ class _MyHomePageState extends State<MyHomePage> {
             seconds: seconds,
             milliseconds: milliseconds,
           ),
+        );
+
+        _listKey.currentState!.insertItem(
+          0,
+          duration: const Duration(milliseconds: 200),
         );
       },
     );
@@ -350,12 +392,77 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(30.0, 10.0, 30.0, 30.0),
                     child: Container(
-                      // padding: const EdgeInsets.all(10.0),
-                      decoration: BoxDecoration(
-                          color: Colors.white10,
-                          borderRadius: BorderRadius.circular(10.0),
-                          border: Border.all(color: Colors.black12)),
-                      child: ListView.builder(
+                        // padding: const EdgeInsets.all(10.0),
+                        decoration: BoxDecoration(
+                            color: Colors.white10,
+                            borderRadius: BorderRadius.circular(10.0),
+                            border: Border.all(color: Colors.black12)),
+                        child: AnimatedList(
+                          key: _listKey,
+                          itemBuilder: (context, index, animation) {
+                            index = laps.length - 1 - index;
+                            if (index < 0) return Container();
+                            return SizeTransition(
+                              sizeFactor: animation,
+                              key: UniqueKey(),
+                              child: ListTile(
+                                tileColor: index % 2 == 0
+                                    ? const Color.fromRGBO(239, 239, 239, 1)
+                                    : Colors.white,
+                                title: Text(
+                                  laps[index].title,
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                  ),
+                                ),
+                                trailing: Text(
+                                  isHourFormat
+                                      ? '${(laps[index].hours >= 10) ? '${laps[index].hours}' : '0${laps[index].hours}'}:${(laps[index].minutes >= 10) ? '${laps[index].minutes}' : '0${laps[index].minutes}'}:${(laps[index].seconds >= 10) ? '${laps[index].seconds}' : '0${laps[index].seconds}'}'
+                                      : '${(laps[index].minutes >= 10) ? '${laps[index].minutes}' : '0${laps[index].minutes}'}:${(laps[index].seconds >= 10) ? '${laps[index].seconds}' : '0${laps[index].seconds}'}.${(roundOffMilliSeconds(laps[index].milliseconds) >= 10) ? '${roundOffMilliSeconds(laps[index].milliseconds)}' : '0${roundOffMilliSeconds(laps[index].milliseconds)}'}',
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                          initialItemCount: 0,
+                          padding: const EdgeInsets.all(5),
+                        )
+
+                        /*
+                         AnimatedList(
+                          key: _listKey,
+                          initialItemCount: laps.length,
+                          itemBuilder: (context, index, animation) {
+                            index = laps.length - index - 1;
+                            return SlideTransition(
+                              position: animation.drive(_offset),
+                              child: ListTile(
+                                tileColor: index % 2 == 0
+                                    ? const Color.fromRGBO(239, 239, 239, 1)
+                                    : Colors.white,
+                                title: Text(
+                                  laps[index].title,
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                  ),
+                                ),
+                                trailing: Text(
+                                  isHourFormat
+                                      ? '${(laps[index].hours >= 10) ? '${laps[index].hours}' : '0${laps[index].hours}'}:${(laps[index].minutes >= 10) ? '${laps[index].minutes}' : '0${laps[index].minutes}'}:${(laps[index].seconds >= 10) ? '${laps[index].seconds}' : '0${laps[index].seconds}'}'
+                                      : '${(laps[index].minutes >= 10) ? '${laps[index].minutes}' : '0${laps[index].minutes}'}:${(laps[index].seconds >= 10) ? '${laps[index].seconds}' : '0${laps[index].seconds}'}.${(roundOffMilliSeconds(laps[index].milliseconds) >= 10) ? '${roundOffMilliSeconds(laps[index].milliseconds)}' : '0${roundOffMilliSeconds(laps[index].milliseconds)}'}',
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        )
+                        */
+                        /*
+                          ListView.builder(
                         itemCount: laps.length,
                         itemBuilder: (context, index) {
                           index = laps.length - index - 1;
@@ -380,7 +487,8 @@ class _MyHomePageState extends State<MyHomePage> {
                           );
                         },
                       ),
-                    ),
+                      */
+                        ),
                   ),
                 ),
               if (currentSegment == SelectedSegment.record)
