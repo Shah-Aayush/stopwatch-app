@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'StopWatch',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        backgroundColor: Colors.white,
         fontFamily: 'avenir-next',
       ),
       home: const MyHomePage(title: 'StopWatch'),
@@ -184,230 +184,207 @@ class _MyHomePageState extends State<MyHomePage> {
                   color: Colors.white,
                 ),
               ),
-              CupertinoSlidingSegmentedControl<SelectedSegment>(
-                children: const {
-                  SelectedSegment.timer: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 15,
-                      vertical: 5,
-                    ),
-                    child: Text(
-                      'Timer',
-                      style: TextStyle(
-                        fontSize: 30,
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: CupertinoSlidingSegmentedControl<SelectedSegment>(
+                  thumbColor: Colors.black,
+                  backgroundColor: Colors.white,
+                  children: {
+                    SelectedSegment.timer: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 30,
+                        vertical: 10,
                       ),
-                    ),
-                  ),
-                  SelectedSegment.record: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 15,
-                      vertical: 5,
-                    ),
-                    child: Text(
-                      'Records',
-                      style: TextStyle(
-                        fontSize: 30,
-                      ),
-                    ),
-                  ),
-                },
-                onValueChanged: (value) {
-                  setState(() {
-                    currentSegment = value!;
-                  });
-                },
-                groupValue: currentSegment,
-                // thumbColor: CupertinoColors.activeGreen,
-              ),
-              CupertinoSwitch(
-                value: isHourFormat,
-                onChanged: (bool? value) {
-                  setState(() {
-                    isHourFormat = value!;
-                  });
-                },
-              ),
-              currentSegment == SelectedSegment.record
-                  ? RecordsScreen(
-                      prefs: prefs,
-                      // data: {'prefs': getLocalData()},
-                    )
-                  : Container(
-                      margin: const EdgeInsets.symmetric(vertical: 50.0),
                       child: Text(
-                        isHourFormat
-                            ? '${(hours >= 10) ? '$hours' : '0$hours'}:${(minutes >= 10) ? '$minutes' : '0$minutes'}:${(seconds >= 10) ? '$seconds' : '0$seconds'}'
-                            : '${(minutes >= 10) ? '$minutes' : '0$minutes'}:${(seconds >= 10) ? '$seconds' : '0$seconds'}.${(roundOffMilliSeconds(milliseconds) >= 10) ? '${roundOffMilliSeconds(milliseconds)}' : '0${roundOffMilliSeconds(milliseconds)}'}',
-                        style: const TextStyle(
-                          fontSize: 70.0,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                          fontFeatures: [FontFeature.tabularFigures()],
+                        'Timer',
+                        style: TextStyle(
+                          color: currentSegment == SelectedSegment.timer
+                              ? Colors.white
+                              : Colors.grey,
+                          fontSize: 20,
                         ),
                       ),
                     ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  GestureDetector(
-                    onTap: reset,
-                    child: Container(
-                      padding: const EdgeInsets.all(5.0),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.white60,
-                          width: 2.0,
-                        ),
-                        borderRadius: BorderRadius.circular(
-                          180.0,
+                    SelectedSegment.record: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 30,
+                        vertical: 10,
+                      ),
+                      child: Text(
+                        'Records',
+                        style: TextStyle(
+                          color: currentSegment == SelectedSegment.record
+                              ? Colors.white
+                              : Colors.grey,
+                          fontSize: 20,
                         ),
                       ),
-                      child: Container(
-                        height: 70.0,
-                        width: 70.0,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.white,
-                            width: 2.0,
-                          ),
-                          borderRadius: BorderRadius.circular(
-                            180.0,
-                          ),
-                        ),
-                        child: const Center(
-                          child: Icon(
-                            Icons.refresh,
-                            color: Colors.white,
-                            size: 40.0,
-                          ),
-                        ),
-                      ),
+                    ),
+                  },
+                  onValueChanged: (value) {
+                    setState(() {
+                      currentSegment = value!;
+                    });
+                  },
+                  groupValue: currentSegment,
+                ),
+              ),
+              if (currentSegment == SelectedSegment.timer)
+                Container(
+                  margin: const EdgeInsets.only(top: 30.0, bottom: 20),
+                  child: Text(
+                    isHourFormat
+                        ? '${(hours >= 10) ? '$hours' : '0$hours'}:${(minutes >= 10) ? '$minutes' : '0$minutes'}:${(seconds >= 10) ? '$seconds' : '0$seconds'}'
+                        : '${(minutes >= 10) ? '$minutes' : '0$minutes'}:${(seconds >= 10) ? '$seconds' : '0$seconds'}.${(roundOffMilliSeconds(milliseconds) >= 10) ? '${roundOffMilliSeconds(milliseconds)}' : '0${roundOffMilliSeconds(milliseconds)}'}',
+                    style: const TextStyle(
+                      fontSize: 70.0,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
+                      fontFeatures: [FontFeature.tabularFigures()],
                     ),
                   ),
-                  GestureDetector(
-                    onTap: (active) ? stop : increment,
-                    child: Container(
-                      padding: const EdgeInsets.all(5.0),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: const Color.fromRGBO(174, 83, 169, 0.6),
-                          width: 2.0,
-                        ),
-                        borderRadius: BorderRadius.circular(
-                          180.0,
-                        ),
-                      ),
+                ),
+              if (currentSegment == SelectedSegment.timer)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    GestureDetector(
+                      onTap: (active) ? addLap : reset,
                       child: Container(
-                        height: 90.0,
-                        width: 90.0,
+                        height: 100,
+                        width: 100,
                         decoration: BoxDecoration(
-                          border: Border.all(
-                            color: const Color.fromRGBO(174, 83, 169, 1.0),
-                            width: 2.0,
-                          ),
+                          color: Colors.grey.shade200,
                           borderRadius: BorderRadius.circular(
                             180.0,
                           ),
                         ),
                         child: Center(
-                          child: Icon(
-                            (active) ? Icons.pause : Icons.play_arrow,
-                            color: Colors.white,
-                            size: 60.0,
+                          child: Text(
+                            active ? 'Lap' : 'Reset',
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 20,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  GestureDetector(
-                    onTap: addLap,
-                    child: Container(
-                      padding: const EdgeInsets.all(5.0),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.white60,
-                          width: 2.0,
-                        ),
-                        borderRadius: BorderRadius.circular(
-                          180.0,
-                        ),
-                      ),
+                    GestureDetector(
+                      onTap: (active) ? stop : increment,
                       child: Container(
-                        height: 70.0,
-                        width: 70.0,
+                        height: 100,
+                        width: 100,
                         decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.white,
-                            width: 2.0,
-                          ),
+                          color: active
+                              ? const Color.fromRGBO(198, 33, 65, 1.0)
+                              : const Color.fromRGBO(41, 158, 120, 1.0),
                           borderRadius: BorderRadius.circular(
                             180.0,
                           ),
                         ),
-                        child: const Center(
-                          child: Icon(
-                            Icons.flag,
-                            color: Colors.white,
-                            size: 40.0,
+                        child: Center(
+                          child: Text(
+                            active ? 'Stop' : 'Start',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                            ),
                           ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 10.0,
-                  horizontal: 40.0,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    GestureDetector(
-                      onTap: cleanLaps,
-                      child: const Text(
-                        'Clear',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20.0,
                         ),
                       ),
                     ),
                   ],
                 ),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(30.0, 0.0, 30.0, 30.0),
-                  child: Container(
-                    padding: const EdgeInsets.all(10.0),
-                    decoration: BoxDecoration(
-                      color: Colors.white10,
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: ListView.builder(
-                      itemCount: laps.length,
-                      itemBuilder: (context, index) {
-                        return Container(
-                          margin: const EdgeInsets.symmetric(
-                            vertical: 5.0,
+              Container(
+                padding: const EdgeInsets.only(
+                  top: 20.0,
+                  right: 40.0,
+                  left: 40.0,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Row(
+                      children: [
+                        const Text(
+                          'Hour Format :',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 17.0,
                           ),
-                          child: ListTile(
-                            title: Text(laps[index].title),
+                        ),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        CupertinoSwitch(
+                          value: isHourFormat,
+                          onChanged: (bool? value) {
+                            setState(() {
+                              isHourFormat = value!;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                    if (currentSegment == SelectedSegment.timer)
+                      GestureDetector(
+                        onTap: cleanLaps,
+                        child: const Text(
+                          'Clear',
+                          style: TextStyle(
+                            color: Colors.black45,
+                            fontSize: 20.0,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              if (currentSegment == SelectedSegment.timer)
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(30.0, 10.0, 30.0, 30.0),
+                    child: Container(
+                      // padding: const EdgeInsets.all(10.0),
+                      decoration: BoxDecoration(
+                          color: Colors.white10,
+                          borderRadius: BorderRadius.circular(10.0),
+                          border: Border.all(color: Colors.black12)),
+                      child: ListView.builder(
+                        itemCount: laps.length,
+                        itemBuilder: (context, index) {
+                          index = laps.length - index - 1;
+                          return ListTile(
+                            tileColor: index % 2 == 0
+                                ? const Color.fromRGBO(239, 239, 239, 1)
+                                : Colors.white,
+                            title: Text(
+                              laps[index].title,
+                              style: const TextStyle(
+                                fontSize: 15,
+                              ),
+                            ),
                             trailing: Text(
                               isHourFormat
                                   ? '${(laps[index].hours >= 10) ? '${laps[index].hours}' : '0${laps[index].hours}'}:${(laps[index].minutes >= 10) ? '${laps[index].minutes}' : '0${laps[index].minutes}'}:${(laps[index].seconds >= 10) ? '${laps[index].seconds}' : '0${laps[index].seconds}'}'
                                   : '${(laps[index].minutes >= 10) ? '${laps[index].minutes}' : '0${laps[index].minutes}'}:${(laps[index].seconds >= 10) ? '${laps[index].seconds}' : '0${laps[index].seconds}'}.${(roundOffMilliSeconds(laps[index].milliseconds) >= 10) ? '${roundOffMilliSeconds(laps[index].milliseconds)}' : '0${roundOffMilliSeconds(laps[index].milliseconds)}'}',
+                              style: const TextStyle(
+                                fontSize: 15,
+                              ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),
-              )
+              if (currentSegment == SelectedSegment.record)
+                RecordsScreen(prefs: prefs),
             ],
           ),
         ),
