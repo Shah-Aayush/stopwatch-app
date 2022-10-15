@@ -1,9 +1,8 @@
 import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
-
-import 'package:stopwatch/digit_container.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,6 +18,7 @@ class MyApp extends StatelessWidget {
       title: 'StopWatch',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        fontFamily: 'avenir-next',
       ),
       home: const MyHomePage(title: 'StopWatch'),
     );
@@ -35,9 +35,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int milliseconds = 0, seconds = 0, minutes = 0;
+  int milliseconds = 0, seconds = 0, minutes = 0, hours = 0;
   late Timer timer;
   bool active = false;
+  bool isHourFormat = false;
   List laps = [];
 
   @override
@@ -53,8 +54,9 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void addLap() {
-    String lap =
-        '${(minutes >= 10) ? '$minutes' : '0$minutes'}:${(seconds >= 10) ? '$seconds' : '0$seconds'}.${(roundOffMilliSeconds(milliseconds) >= 10) ? '${roundOffMilliSeconds(milliseconds)}' : '0${roundOffMilliSeconds(milliseconds)}'}';
+    String lap = isHourFormat
+        ? '${(hours >= 10) ? '$hours' : '0$hours'}:${(minutes >= 10) ? '$minutes' : '0$minutes'}:${(seconds >= 10) ? '$seconds' : '0$seconds'}'
+        : '${(minutes >= 10) ? '$minutes' : '0$minutes'}:${(seconds >= 10) ? '$seconds' : '0$seconds'}.${(roundOffMilliSeconds(milliseconds) >= 10) ? '${roundOffMilliSeconds(milliseconds)}' : '0${roundOffMilliSeconds(milliseconds)}'}';
     setState(() {
       laps.add(lap);
     });
@@ -85,18 +87,28 @@ class _MyHomePageState extends State<MyHomePage> {
       int localMilliSeconds = milliseconds + 1;
       int localSeconds = seconds;
       int localMinutes = minutes;
+      int localHours = hours;
       if (localMilliSeconds > 999) {
         localMilliSeconds = 0;
         localSeconds++;
         if (localSeconds > 59) {
           localMinutes++;
           localSeconds = 0;
+          if (localMinutes > 59) {
+            localMinutes = 0;
+            localHours++;
+            setState(() {
+              isHourFormat = true;
+              print('isHourFormat changed.');
+            });
+          }
         }
       }
       setState(() {
         milliseconds = localMilliSeconds;
         seconds = localSeconds;
         minutes = localMinutes;
+        hours = localHours;
         this.timer = timer;
       });
       // print('$localMinutes $localSeconds $localMilliSeconds ');
@@ -125,53 +137,25 @@ class _MyHomePageState extends State<MyHomePage> {
                   color: Colors.white,
                 ),
               ),
+              CupertinoSwitch(
+                  value: isHourFormat,
+                  onChanged: (bool? value) {
+                    setState(() {
+                      isHourFormat = value!;
+                    });
+                  }),
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 50.0),
                 child: Text(
-                  '${(minutes >= 10) ? '$minutes' : '0$minutes'}:${(seconds >= 10) ? '$seconds' : '0$seconds'}.${(roundOffMilliSeconds(milliseconds) >= 10) ? '${roundOffMilliSeconds(milliseconds)}' : '0${roundOffMilliSeconds(milliseconds)}'}',
+                  isHourFormat
+                      ? '${(hours >= 10) ? '$hours' : '0$hours'}:${(minutes >= 10) ? '$minutes' : '0$minutes'}:${(seconds >= 10) ? '$seconds' : '0$seconds'}'
+                      : '${(minutes >= 10) ? '$minutes' : '0$minutes'}:${(seconds >= 10) ? '$seconds' : '0$seconds'}.${(roundOffMilliSeconds(milliseconds) >= 10) ? '${roundOffMilliSeconds(milliseconds)}' : '0${roundOffMilliSeconds(milliseconds)}'}',
                   style: const TextStyle(
                     fontSize: 70.0,
                     fontWeight: FontWeight.w600,
                     color: Colors.white,
                     fontFeatures: [FontFeature.tabularFigures()],
                   ),
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 50.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    DigitsContainer(
-                      (minutes >= 10) ? '$minutes' : '0$minutes',
-                    ),
-                    const Text(
-                      ':',
-                      style: TextStyle(
-                        fontSize: 70.0,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                        // fontFeatures: [FontFeature.tabularFigures()],
-                      ),
-                    ),
-                    DigitsContainer(
-                      (seconds >= 10) ? '$seconds' : '0$seconds',
-                    ),
-                    const Text(
-                      '.',
-                      style: TextStyle(
-                        fontSize: 70.0,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                        // fontFeatures: [FontFeature.tabularFigures()],
-                      ),
-                    ),
-                    DigitsContainer(
-                      (roundOffMilliSeconds(milliseconds) >= 10)
-                          ? '${roundOffMilliSeconds(milliseconds)}'
-                          : '0${roundOffMilliSeconds(milliseconds)}',
-                    ),
-                  ],
                 ),
               ),
               Row(
