@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stopwatch/models/lap.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:lottie/lottie.dart';
 
 class RecordsScreen extends StatefulWidget {
   final SharedPreferences? prefs;
@@ -172,7 +173,18 @@ class _RecordsScreenState extends State<RecordsScreen> {
     return Expanded(
       child: Center(
         child: storedLaps.isEmpty
-            ? const Text('empty laps!')
+            ? Column(children: [
+                Lottie.asset(
+                  './assets/animations/empty_box.json',
+                  repeat: false,
+                ),
+                const Text(
+                  'No Records!',
+                  style: TextStyle(
+                    fontSize: 30,
+                  ),
+                ),
+              ])
             : Container(
                 margin: const EdgeInsets.all(10.0),
                 decoration: BoxDecoration(
