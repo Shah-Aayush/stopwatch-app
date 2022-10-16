@@ -29,7 +29,7 @@ class RecordsScreen extends StatefulWidget {
 
 class _RecordsScreenState extends State<RecordsScreen> {
   late final _prefs;
-  TextEditingController _textFieldController = TextEditingController();
+  final TextEditingController _textFieldController = TextEditingController();
   bool highlightTextField = false;
   String newTitle = '';
   List<Lap> storedLaps = [];
@@ -206,7 +206,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
                             : false,
                         child: Slidable(
                           endActionPane: ActionPane(
-                            motion: ScrollMotion(),
+                            motion: const ScrollMotion(),
                             children: [
                               SlidableAction(
                                 onPressed: (context) {
@@ -230,11 +230,9 @@ class _RecordsScreenState extends State<RecordsScreen> {
                             ],
                           ),
                           child: ListTile(
-                            tileColor:
-                                // index % 2 == 0
-                                //     ? const Color.fromRGBO(239, 239, 239, 1)
-                                //     :
-                                Colors.white,
+                            tileColor: index % 2 == 0
+                                ? const Color.fromRGBO(239, 239, 239, 1)
+                                : Colors.white,
                             leading: const Icon(CupertinoIcons.stopwatch),
                             trailing: Text(
                               widget.isHourFormat!
