@@ -255,7 +255,11 @@ class _MyHomePageState extends State<MyHomePage> {
             sizeFactor: animation,
             key: UniqueKey(),
             child: ListTile(
-              tileColor: Colors.white,
+              tileColor:
+                  // index % 2 == 0
+                  //     ? const Color.fromRGBO(239, 239, 239, 1)
+                  //     :
+                  Colors.white,
               title: Text(
                 laps[index].title,
                 style: const TextStyle(
