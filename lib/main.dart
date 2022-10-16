@@ -323,220 +323,233 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
-    return Scaffold(
-      backgroundColor: theme.backgroundColor,
-      body: SafeArea(
+    return Container(
+      color: Colors.white,
+      child: SafeArea(
+        left: false,
+        right: false,
         bottom: false,
-        child: Center(
-          child: Column(
-            children: <Widget>[
-              Container(
-                color: Colors.white,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.only(top: 20),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      child: CupertinoSlidingSegmentedControl<SelectedSegment>(
-                        thumbColor: Colors.black,
-                        backgroundColor: Colors.white,
-                        children: {
-                          SelectedSegment.timer: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 30,
-                              vertical: 10,
-                            ),
-                            child: Text(
-                              'Timer',
-                              style: TextStyle(
-                                color: currentSegment == SelectedSegment.timer
-                                    ? Colors.white
-                                    : Colors.grey,
-                                fontSize: 20,
-                              ),
-                            ),
+        child: Scaffold(
+          backgroundColor: theme.backgroundColor,
+          body: SafeArea(
+            bottom: false,
+            child: Center(
+              child: Column(
+                children: <Widget>[
+                  Container(
+                    color: Colors.white,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.only(top: 20),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(5),
                           ),
-                          SelectedSegment.record: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 30,
-                              vertical: 10,
-                            ),
-                            child: Text(
-                              'Records',
-                              style: TextStyle(
-                                color: currentSegment == SelectedSegment.record
-                                    ? Colors.white
-                                    : Colors.grey,
-                                fontSize: 20,
+                          child:
+                              CupertinoSlidingSegmentedControl<SelectedSegment>(
+                            thumbColor: Colors.black,
+                            backgroundColor: Colors.white,
+                            children: {
+                              SelectedSegment.timer: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 30,
+                                  vertical: 10,
+                                ),
+                                child: Text(
+                                  'Timer',
+                                  style: TextStyle(
+                                    color:
+                                        currentSegment == SelectedSegment.timer
+                                            ? Colors.white
+                                            : Colors.grey,
+                                    fontSize: 20,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        },
-                        onValueChanged: (value) {
-                          setState(() {
-                            currentSegment = value!;
-                          });
-                        },
-                        groupValue: currentSegment,
-                      ),
-                    ),
-                    if (currentSegment == SelectedSegment.record)
-                      Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: CupertinoSearchTextField(
-                            controller: _searchController,
-                            placeholder: 'Search record',
-                            onChanged: (str) {
-                              setState(() {});
+                              SelectedSegment.record: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 30,
+                                  vertical: 10,
+                                ),
+                                child: Text(
+                                  'Records',
+                                  style: TextStyle(
+                                    color:
+                                        currentSegment == SelectedSegment.record
+                                            ? Colors.white
+                                            : Colors.grey,
+                                    fontSize: 20,
+                                  ),
+                                ),
+                              ),
                             },
+                            onValueChanged: (value) {
+                              setState(() {
+                                currentSegment = value!;
+                              });
+                            },
+                            groupValue: currentSegment,
                           ),
                         ),
-                      ),
-                    if (currentSegment == SelectedSegment.timer)
-                      Container(
-                        margin: const EdgeInsets.only(top: 30.0, bottom: 20),
-                        child: Text(
-                          isHourFormat
-                              ? '${(hours >= 10) ? '$hours' : '0$hours'}:${(minutes >= 10) ? '$minutes' : '0$minutes'}:${(seconds >= 10) ? '$seconds' : '0$seconds'}'
-                              : '${(minutes >= 10) ? '$minutes' : '0$minutes'}:${(seconds >= 10) ? '$seconds' : '0$seconds'}.${(roundOffMilliSeconds(milliseconds) >= 10) ? '${roundOffMilliSeconds(milliseconds)}' : '0${roundOffMilliSeconds(milliseconds)}'}',
-                          style: const TextStyle(
-                            fontSize: 70.0,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black,
-                            fontFeatures: [FontFeature.tabularFigures()],
-                          ),
-                        ),
-                      ),
-                    if (currentSegment == SelectedSegment.timer)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          GestureDetector(
-                            onTap: (active) ? addLap : reset,
-                            child: Container(
-                              height: 100,
-                              width: 100,
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade200,
-                                borderRadius: BorderRadius.circular(
-                                  180.0,
-                                ),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  active ? 'Lap' : 'Reset',
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 20,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: (active) ? stop : increment,
-                            child: Container(
-                              height: 100,
-                              width: 100,
-                              decoration: BoxDecoration(
-                                color: active
-                                    ? const Color.fromRGBO(198, 33, 65, 1.0)
-                                    : const Color.fromRGBO(41, 158, 120, 1.0),
-                                borderRadius: BorderRadius.circular(
-                                  180.0,
-                                ),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  active ? 'Stop' : 'Start',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    Container(
-                      padding: const EdgeInsets.only(
-                        top: 20.0,
-                        right: 40.0,
-                        left: 40.0,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Row(
-                            children: [
-                              const Text(
-                                'Hour Format :',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 17.0,
-                                ),
-                              ),
-                              const SizedBox(
-                                width: 5,
-                              ),
-                              CupertinoSwitch(
-                                value: isHourFormat,
-                                onChanged: (bool? value) {
-                                  setState(() {
-                                    isHourFormat = value!;
-                                  });
+                        if (currentSegment == SelectedSegment.record)
+                          Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: CupertinoSearchTextField(
+                                controller: _searchController,
+                                placeholder: 'Search record',
+                                onChanged: (str) {
+                                  setState(() {});
                                 },
+                              ),
+                            ),
+                          ),
+                        if (currentSegment == SelectedSegment.timer)
+                          Container(
+                            margin:
+                                const EdgeInsets.only(top: 30.0, bottom: 20),
+                            child: Text(
+                              isHourFormat
+                                  ? '${(hours >= 10) ? '$hours' : '0$hours'}:${(minutes >= 10) ? '$minutes' : '0$minutes'}:${(seconds >= 10) ? '$seconds' : '0$seconds'}'
+                                  : '${(minutes >= 10) ? '$minutes' : '0$minutes'}:${(seconds >= 10) ? '$seconds' : '0$seconds'}.${(roundOffMilliSeconds(milliseconds) >= 10) ? '${roundOffMilliSeconds(milliseconds)}' : '0${roundOffMilliSeconds(milliseconds)}'}',
+                              style: const TextStyle(
+                                fontSize: 70.0,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black,
+                                fontFeatures: [FontFeature.tabularFigures()],
+                              ),
+                            ),
+                          ),
+                        if (currentSegment == SelectedSegment.timer)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              GestureDetector(
+                                onTap: (active) ? addLap : reset,
+                                child: Container(
+                                  height: 100,
+                                  width: 100,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade200,
+                                    borderRadius: BorderRadius.circular(
+                                      180.0,
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      active ? 'Lap' : 'Reset',
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: (active) ? stop : increment,
+                                child: Container(
+                                  height: 100,
+                                  width: 100,
+                                  decoration: BoxDecoration(
+                                    color: active
+                                        ? const Color.fromRGBO(198, 33, 65, 1.0)
+                                        : const Color.fromRGBO(
+                                            41, 158, 120, 1.0),
+                                    borderRadius: BorderRadius.circular(
+                                      180.0,
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      active ? 'Stop' : 'Start',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
                             ],
                           ),
-                          if (currentSegment == SelectedSegment.timer)
-                            GestureDetector(
-                              onTap: cleanLaps,
-                              child: const Text(
-                                'Clear',
-                                style: TextStyle(
-                                  color: Colors.black45,
-                                  fontSize: 20.0,
-                                ),
+                        Container(
+                          padding: const EdgeInsets.only(
+                            top: 20.0,
+                            right: 40.0,
+                            left: 40.0,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Row(
+                                children: [
+                                  const Text(
+                                    'Hour Format :',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 17.0,
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: 5,
+                                  ),
+                                  CupertinoSwitch(
+                                    value: isHourFormat,
+                                    onChanged: (bool? value) {
+                                      setState(() {
+                                        isHourFormat = value!;
+                                      });
+                                    },
+                                  ),
+                                ],
                               ),
-                            ),
-                        ],
+                              if (currentSegment == SelectedSegment.timer)
+                                GestureDetector(
+                                  onTap: cleanLaps,
+                                  child: const Text(
+                                    'Clear',
+                                    style: TextStyle(
+                                      color: Colors.black45,
+                                      fontSize: 20.0,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (currentSegment == SelectedSegment.timer)
+                    Expanded(
+                      child: Container(
+                        margin: const EdgeInsets.only(
+                            bottom: 20, left: 30, right: 20),
+                        // padding: const EdgeInsets.all(10.0),
+                        decoration: BoxDecoration(
+                            color: Colors.white10,
+                            borderRadius: BorderRadius.circular(10.0),
+                            border: Border.all(color: Colors.black12)),
+                        child: _buildAnimatedList(),
                       ),
                     ),
-                    const SizedBox(
-                      height: 10,
+                  if (currentSegment == SelectedSegment.record)
+                    RecordsScreen(
+                      prefs: prefs,
+                      isHourFormat: isHourFormat,
+                      roundOffMilliSeconds: roundOffMilliSeconds,
+                      filterText: _searchController.text,
                     ),
-                  ],
-                ),
+                ],
               ),
-              if (currentSegment == SelectedSegment.timer)
-                Expanded(
-                  child: Container(
-                    margin:
-                        const EdgeInsets.only(bottom: 20, left: 30, right: 20),
-                    // padding: const EdgeInsets.all(10.0),
-                    decoration: BoxDecoration(
-                        color: Colors.white10,
-                        borderRadius: BorderRadius.circular(10.0),
-                        border: Border.all(color: Colors.black12)),
-                    child: _buildAnimatedList(),
-                  ),
-                ),
-              if (currentSegment == SelectedSegment.record)
-                RecordsScreen(
-                  prefs: prefs,
-                  isHourFormat: isHourFormat,
-                  roundOffMilliSeconds: roundOffMilliSeconds,
-                  filterText: _searchController.text,
-                ),
-            ],
+            ),
           ),
         ),
       ),

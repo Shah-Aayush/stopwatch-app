@@ -197,6 +197,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
                 child: ListView.builder(
                     itemCount: storedLaps.length,
                     itemBuilder: (BuildContext context, int index) {
+                      index = storedLaps.length - index - 1;
                       return Visibility(
                         visible: storedLaps[index]
                                 .title
