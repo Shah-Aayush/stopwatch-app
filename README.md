@@ -20,14 +20,16 @@ records
 -  Hour-Format conversion switch
 
 ## Steps to run my app
-- Assuming flutter is installed on the computer, 
+1. Assuming flutter is installed on the computer, 
 	> if not, install flutter from [here](https://docs.flutter.dev/get-started/install)
 	- check your flutter installation is properly done or not with `flutter doctor -v`
-- go to main directory i.e. which contains `lib`,`ios`,`android` files
-- see available devices with `flutter devices`
-- select any available device name and append it to following command
-	- `flutter`
-
+2. go to main directory i.e. which contains `lib`,`ios`,`android` files
+3. see available devices with `flutter devices`
+4. select any available device name and append it to following command
+	- `flutter run -d <your-device-name>`
+- additional : 
+	- To run on any iphone on release mode which has name `Aayush’s iPhone` displayed under devices section, run `flutter run -d 'Aayush’s iPhone' --release`
+	- For building release apk for android, run following command `flutter  build apk --release`
 
 # Author
 - Name : Aayush Shah
