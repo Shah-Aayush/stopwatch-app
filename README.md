@@ -31,6 +31,10 @@ records
 	- To run on any iphone on release mode which has name `Aayush’s iPhone` displayed under devices section, run `flutter run -d 'Aayush’s iPhone' --release`
 	- For building release apk for android, run following command `flutter  build apk --release`
 
+### See `.apk` file [here](./assets/apk/StopWatch.apk)
+
+### See *Screen Recording*  [here](./assets/screen-recording/stopwatch.mp4)
+
 # Author
 - Name : Aayush Shah
 - Roll Number : 19BCE245
