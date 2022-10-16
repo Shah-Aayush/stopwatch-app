@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 class Lap {
-  final String title;
+  String title;
   final int hours;
   final int minutes;
   final int seconds;

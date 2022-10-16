@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
@@ -17,7 +18,6 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   prefs = await SharedPreferences.getInstance();
   isNewLaunch = prefs!.getBool("isNewLaunch");
-  print('isNewLaunch:$isNewLaunch');
   await prefs!.setBool("isNewLaunch", false);
   runApp(const MyApp());
 }
@@ -55,32 +55,43 @@ class _MyHomePageState extends State<MyHomePage> {
   late Timer timer;
   bool active = false;
   bool isHourFormat = false;
-  List<Lap> laps = [];
+  late List<Lap> laps = [];
   SelectedSegment currentSegment = SelectedSegment.timer;
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-  final Tween<Offset> _offset =
-      Tween(begin: const Offset(0, -1), end: const Offset(0, 0));
+  late List<Lap> encodedLaps;
 
   _setLaps() async {
     List<Lap> initLaps = [];
-    final String encodedLaps = Lap.encode(initLaps);
-    await prefs!.setString('laps', encodedLaps);
+    // encodedLaps = Lap.encode(initLaps);
+    await prefs!.setString('laps', Lap.encode(initLaps));
     // final String? lapsString = prefs!.getString('laps');
     // laps = Lap.decode(lapsString!);
+  }
+
+  _addLapRecord(int index) async {
+    encodedLaps = Lap.decode(prefs!.getString('laps')!);
+    encodedLaps.add(Lap(
+        title: laps[index].title,
+        hours: laps[index].hours,
+        minutes: laps[index].minutes,
+        seconds: laps[index].seconds,
+        milliseconds: laps[index].milliseconds));
+    await prefs!.setString('laps', Lap.encode(encodedLaps));
   }
 
   @override
   void initState() {
     super.initState();
     if (isNewLaunch == null) {
-      print('isNewLaunch is null');
       _setLaps();
-    } else {
-      print('isNewLaunch is not null : $isNewLaunch');
-    }
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      // addLap();
-    });
+    } else {}
+    WidgetsBinding.instance.addPostFrameCallback(
+      (timeStamp) {
+        // addLap();
+      },
+    );
+    timer = Timer(const Duration(), () {});
+    laps = [];
   }
 
   @override
@@ -89,8 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
 
-  void _removeItem(int index) {
-    if (index < 0) return;
+  void _removeItem(int index, bool showAnimation) {
     _listKey.currentState!.removeItem(
       index,
       (_, animation) {
@@ -108,8 +118,9 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         );
       },
-      duration: const Duration(milliseconds: 200),
+      duration: Duration(milliseconds: showAnimation ? 100 : 2),
     );
+
     laps.removeAt(index);
   }
 
@@ -117,14 +128,24 @@ class _MyHomePageState extends State<MyHomePage> {
     Future ft = Future(() {});
 
     int counter = laps.length - 1;
+    int count = 0;
 
-    laps.forEach((Lap lap) {
-      ft = ft.then((_) {
-        return Future.delayed(const Duration(milliseconds: 100), () {
-          _removeItem(counter--);
+    for (var _ in laps) {
+      if (count++ < 5) {
+        ft = ft.then((_) {
+          return Future.delayed(const Duration(milliseconds: 10), () {
+            _removeItem(counter--, true);
+          });
         });
-      });
-    });
+      } else {
+        ft = ft.then((_) {
+          return Future.delayed(const Duration(milliseconds: 10), () {
+            _removeItem(counter--, false);
+          });
+        });
+      }
+    }
+
     // setState(() {
     //   laps = [];
     // });
@@ -168,6 +189,96 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  Future<void> showAlertDialogMessage(BuildContext context, int index) async {
+    final String titleText = 'Save `${laps[index].title}` in records?';
+    if (Platform.isAndroid) {
+      await showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(titleText),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                // addLap();
+                _addLapRecord(index);
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        ),
+      );
+    } else {
+      await showCupertinoDialog(
+        context: context,
+        builder: (ctx) => CupertinoAlertDialog(
+          title: Text(titleText),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                _addLapRecord(index);
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  Widget _buildAnimatedList() {
+    // print('buildanimation list called');
+    return AnimatedList(
+      key: _listKey,
+      itemBuilder: (context, index, animation) {
+        index = laps.length - 1 - index;
+        return GestureDetector(
+          onTap: () async {
+            showAlertDialogMessage(context, index);
+          },
+          child: SizeTransition(
+            sizeFactor: animation,
+            key: UniqueKey(),
+            child: ListTile(
+              tileColor: index % 2 == 0
+                  ? const Color.fromRGBO(239, 239, 239, 1)
+                  : Colors.white,
+              title: Text(
+                laps[index].title,
+                style: const TextStyle(
+                  fontSize: 15,
+                ),
+              ),
+              trailing: Text(
+                isHourFormat
+                    ? '${(laps[index].hours >= 10) ? '${laps[index].hours}' : '0${laps[index].hours}'}:${(laps[index].minutes >= 10) ? '${laps[index].minutes}' : '0${laps[index].minutes}'}:${(laps[index].seconds >= 10) ? '${laps[index].seconds}' : '0${laps[index].seconds}'}'
+                    : '${(laps[index].minutes >= 10) ? '${laps[index].minutes}' : '0${laps[index].minutes}'}:${(laps[index].seconds >= 10) ? '${laps[index].seconds}' : '0${laps[index].seconds}'}.${(roundOffMilliSeconds(laps[index].milliseconds) >= 10) ? '${roundOffMilliSeconds(laps[index].milliseconds)}' : '0${roundOffMilliSeconds(laps[index].milliseconds)}'}',
+                style: const TextStyle(
+                  fontSize: 15,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+      initialItemCount: laps.length,
+      padding: const EdgeInsets.all(5),
+    );
+  }
+
   void increment() {
     setState(() {
       active = true;
@@ -188,7 +299,6 @@ class _MyHomePageState extends State<MyHomePage> {
             localHours++;
             setState(() {
               isHourFormat = true;
-              print('isHourFormat changed.');
             });
           }
         }
@@ -218,15 +328,8 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Center(
           child: Column(
             children: <Widget>[
-              const Text(
-                'Timer',
-                style: TextStyle(
-                  fontSize: 25.0,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
               Container(
+                margin: EdgeInsets.only(top: 20),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey),
                   borderRadius: BorderRadius.circular(5),
@@ -392,107 +495,21 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(30.0, 10.0, 30.0, 30.0),
                     child: Container(
-                        // padding: const EdgeInsets.all(10.0),
-                        decoration: BoxDecoration(
-                            color: Colors.white10,
-                            borderRadius: BorderRadius.circular(10.0),
-                            border: Border.all(color: Colors.black12)),
-                        child: AnimatedList(
-                          key: _listKey,
-                          itemBuilder: (context, index, animation) {
-                            index = laps.length - 1 - index;
-                            if (index < 0) return Container();
-                            return SizeTransition(
-                              sizeFactor: animation,
-                              key: UniqueKey(),
-                              child: ListTile(
-                                tileColor: index % 2 == 0
-                                    ? const Color.fromRGBO(239, 239, 239, 1)
-                                    : Colors.white,
-                                title: Text(
-                                  laps[index].title,
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                  ),
-                                ),
-                                trailing: Text(
-                                  isHourFormat
-                                      ? '${(laps[index].hours >= 10) ? '${laps[index].hours}' : '0${laps[index].hours}'}:${(laps[index].minutes >= 10) ? '${laps[index].minutes}' : '0${laps[index].minutes}'}:${(laps[index].seconds >= 10) ? '${laps[index].seconds}' : '0${laps[index].seconds}'}'
-                                      : '${(laps[index].minutes >= 10) ? '${laps[index].minutes}' : '0${laps[index].minutes}'}:${(laps[index].seconds >= 10) ? '${laps[index].seconds}' : '0${laps[index].seconds}'}.${(roundOffMilliSeconds(laps[index].milliseconds) >= 10) ? '${roundOffMilliSeconds(laps[index].milliseconds)}' : '0${roundOffMilliSeconds(laps[index].milliseconds)}'}',
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                          initialItemCount: 0,
-                          padding: const EdgeInsets.all(5),
-                        )
-
-                        /*
-                         AnimatedList(
-                          key: _listKey,
-                          initialItemCount: laps.length,
-                          itemBuilder: (context, index, animation) {
-                            index = laps.length - index - 1;
-                            return SlideTransition(
-                              position: animation.drive(_offset),
-                              child: ListTile(
-                                tileColor: index % 2 == 0
-                                    ? const Color.fromRGBO(239, 239, 239, 1)
-                                    : Colors.white,
-                                title: Text(
-                                  laps[index].title,
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                  ),
-                                ),
-                                trailing: Text(
-                                  isHourFormat
-                                      ? '${(laps[index].hours >= 10) ? '${laps[index].hours}' : '0${laps[index].hours}'}:${(laps[index].minutes >= 10) ? '${laps[index].minutes}' : '0${laps[index].minutes}'}:${(laps[index].seconds >= 10) ? '${laps[index].seconds}' : '0${laps[index].seconds}'}'
-                                      : '${(laps[index].minutes >= 10) ? '${laps[index].minutes}' : '0${laps[index].minutes}'}:${(laps[index].seconds >= 10) ? '${laps[index].seconds}' : '0${laps[index].seconds}'}.${(roundOffMilliSeconds(laps[index].milliseconds) >= 10) ? '${roundOffMilliSeconds(laps[index].milliseconds)}' : '0${roundOffMilliSeconds(laps[index].milliseconds)}'}',
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        )
-                        */
-                        /*
-                          ListView.builder(
-                        itemCount: laps.length,
-                        itemBuilder: (context, index) {
-                          index = laps.length - index - 1;
-                          return ListTile(
-                            tileColor: index % 2 == 0
-                                ? const Color.fromRGBO(239, 239, 239, 1)
-                                : Colors.white,
-                            title: Text(
-                              laps[index].title,
-                              style: const TextStyle(
-                                fontSize: 15,
-                              ),
-                            ),
-                            trailing: Text(
-                              isHourFormat
-                                  ? '${(laps[index].hours >= 10) ? '${laps[index].hours}' : '0${laps[index].hours}'}:${(laps[index].minutes >= 10) ? '${laps[index].minutes}' : '0${laps[index].minutes}'}:${(laps[index].seconds >= 10) ? '${laps[index].seconds}' : '0${laps[index].seconds}'}'
-                                  : '${(laps[index].minutes >= 10) ? '${laps[index].minutes}' : '0${laps[index].minutes}'}:${(laps[index].seconds >= 10) ? '${laps[index].seconds}' : '0${laps[index].seconds}'}.${(roundOffMilliSeconds(laps[index].milliseconds) >= 10) ? '${roundOffMilliSeconds(laps[index].milliseconds)}' : '0${roundOffMilliSeconds(laps[index].milliseconds)}'}',
-                              style: const TextStyle(
-                                fontSize: 15,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      */
-                        ),
+                      // padding: const EdgeInsets.all(10.0),
+                      decoration: BoxDecoration(
+                          color: Colors.white10,
+                          borderRadius: BorderRadius.circular(10.0),
+                          border: Border.all(color: Colors.black12)),
+                      child: _buildAnimatedList(),
+                    ),
                   ),
                 ),
               if (currentSegment == SelectedSegment.record)
-                RecordsScreen(prefs: prefs),
+                RecordsScreen(
+                  prefs: prefs,
+                  isHourFormat: isHourFormat,
+                  roundOffMilliSeconds: roundOffMilliSeconds,
+                ),
             ],
           ),
         ),
