@@ -197,10 +197,12 @@ class _RecordsScreenState extends State<RecordsScreen> {
                     itemCount: storedLaps.length,
                     itemBuilder: (BuildContext context, int index) {
                       return Visibility(
-                        visible:
-                            storedLaps[index].title.contains(widget.filterText)
-                                ? true
-                                : false,
+                        visible: storedLaps[index]
+                                .title
+                                .toLowerCase()
+                                .contains(widget.filterText.toLowerCase())
+                            ? true
+                            : false,
                         child: Slidable(
                           endActionPane: ActionPane(
                             motion: ScrollMotion(),

@@ -38,6 +38,13 @@ dependencies:
   shared_preferences: ^2.0.15
   flutter_slidable: ^2.0.0
   lottie: ^1.4.3
+  flutter_launcher_icons: ^0.10.0
+
+flutter_icons:
+  image_path: "assets/icons/StopWatch.png"
+  android: true
+  ios: true
+  remove_alpha_ios: true
 
 dev_dependencies:
   flutter_test:

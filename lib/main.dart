@@ -388,28 +388,11 @@ class _MyHomePageState extends State<MyHomePage> {
                         controller: _searchController,
                         placeholder: 'Search record',
                         onChanged: (str) {
-                          setState(() {
-                            print('actual ${_searchController.text}');
-                          });
+                          setState(() {});
                         },
                       ),
                     ),
                   ),
-                  //  Card(
-                  //   child: ListTile(
-                  //     leading: Icon(Icons.search),
-                  //     title: TextField(
-                  //       controller: _searchController,
-                  //       decoration: const InputDecoration(
-                  //           hintText: 'Search', border: InputBorder.none),
-                  //       onChanged: (str) {},
-                  //     ),
-                  //     trailing: IconButton(
-                  //       icon: new Icon(Icons.cancel),
-                  //       onPressed: () {},
-                  //     ),
-                  //   ),
-                  // ),
                 ),
               if (currentSegment == SelectedSegment.timer)
                 Container(
