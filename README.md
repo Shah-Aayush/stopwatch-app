@@ -33,7 +33,7 @@ records
 
 ### See `.apk` file [here](./assets/apk/StopWatch.apk)
 
-### See *Screen Recording*  [here](./assets/screen-recording/stopwatch.mp4)
+### See *Screen Recording*  [here](./assets/screen-recording/stopwatch.MP4)
 
 # Author
 - Name : Aayush Shah
