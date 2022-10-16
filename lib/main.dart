@@ -59,6 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
   SelectedSegment currentSegment = SelectedSegment.timer;
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
   late List<Lap> encodedLaps;
+  late TextEditingController _searchController;
 
   _setLaps() async {
     List<Lap> initLaps = [];
@@ -92,6 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
     timer = Timer(const Duration(), () {});
     laps = [];
+    _searchController = TextEditingController(text: '');
   }
 
   @override
@@ -377,6 +379,38 @@ class _MyHomePageState extends State<MyHomePage> {
                   groupValue: currentSegment,
                 ),
               ),
+              if (currentSegment == SelectedSegment.record)
+                Container(
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: CupertinoSearchTextField(
+                        controller: _searchController,
+                        placeholder: 'Search record',
+                        onChanged: (str) {
+                          setState(() {
+                            print('actual ${_searchController.text}');
+                          });
+                        },
+                      ),
+                    ),
+                  ),
+                  //  Card(
+                  //   child: ListTile(
+                  //     leading: Icon(Icons.search),
+                  //     title: TextField(
+                  //       controller: _searchController,
+                  //       decoration: const InputDecoration(
+                  //           hintText: 'Search', border: InputBorder.none),
+                  //       onChanged: (str) {},
+                  //     ),
+                  //     trailing: IconButton(
+                  //       icon: new Icon(Icons.cancel),
+                  //       onPressed: () {},
+                  //     ),
+                  //   ),
+                  // ),
+                ),
               if (currentSegment == SelectedSegment.timer)
                 Container(
                   margin: const EdgeInsets.only(top: 30.0, bottom: 20),
@@ -509,6 +543,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   prefs: prefs,
                   isHourFormat: isHourFormat,
                   roundOffMilliSeconds: roundOffMilliSeconds,
+                  filterText: _searchController.text,
                 ),
             ],
           ),

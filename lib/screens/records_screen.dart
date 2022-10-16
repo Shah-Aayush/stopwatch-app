@@ -12,12 +12,14 @@ class RecordsScreen extends StatefulWidget {
   final SharedPreferences? prefs;
   final bool? isHourFormat;
   final Function roundOffMilliSeconds;
+  final String filterText;
   // final Map data;
   const RecordsScreen({
     super.key,
     required this.prefs,
     required this.isHourFormat,
     required this.roundOffMilliSeconds,
+    required this.filterText,
     // required this.data,
   });
 
@@ -194,44 +196,50 @@ class _RecordsScreenState extends State<RecordsScreen> {
                 child: ListView.builder(
                     itemCount: storedLaps.length,
                     itemBuilder: (BuildContext context, int index) {
-                      return Slidable(
-                        endActionPane: ActionPane(
-                          motion: ScrollMotion(),
-                          children: [
-                            SlidableAction(
-                              onPressed: (context) {
-                                _textFieldController.text =
-                                    storedLaps[index].title;
-                                showAlertDialogMessage(context, index, true);
-                                // _editLap(index, newTitle);
-                              },
-                              backgroundColor: Colors.blue,
-                              foregroundColor: Colors.white,
-                              icon: Icons.edit,
-                            ),
-                            SlidableAction(
-                              onPressed: (context) {
-                                showAlertDialogMessage(context, index, false);
-                              },
-                              backgroundColor: Colors.red,
-                              foregroundColor: Colors.white,
-                              icon: Icons.delete,
-                            ),
-                          ],
-                        ),
-                        child: ListTile(
-                          tileColor: index % 2 == 0
-                              ? const Color.fromRGBO(239, 239, 239, 1)
-                              : Colors.white,
-                          leading: const Icon(CupertinoIcons.stopwatch),
-                          trailing: Text(
-                            widget.isHourFormat!
-                                ? '${(storedLaps[index].hours >= 10) ? '${storedLaps[index].hours}' : '0${storedLaps[index].hours}'}:${(storedLaps[index].minutes >= 10) ? '${storedLaps[index].minutes}' : '0${storedLaps[index].minutes}'}:${(storedLaps[index].seconds >= 10) ? '${storedLaps[index].seconds}' : '0${storedLaps[index].seconds}'}'
-                                : '${(storedLaps[index].minutes >= 10) ? '${storedLaps[index].minutes}' : '0${storedLaps[index].minutes}'}:${(storedLaps[index].seconds >= 10) ? '${storedLaps[index].seconds}' : '0${storedLaps[index].seconds}'}.${(widget.roundOffMilliSeconds(storedLaps[index].milliseconds) >= 10) ? '${widget.roundOffMilliSeconds(storedLaps[index].milliseconds)}' : '0${widget.roundOffMilliSeconds(storedLaps[index].milliseconds)}'}',
-                            style: const TextStyle(
-                                color: Colors.green, fontSize: 15),
+                      return Visibility(
+                        visible:
+                            storedLaps[index].title.contains(widget.filterText)
+                                ? true
+                                : false,
+                        child: Slidable(
+                          endActionPane: ActionPane(
+                            motion: ScrollMotion(),
+                            children: [
+                              SlidableAction(
+                                onPressed: (context) {
+                                  _textFieldController.text =
+                                      storedLaps[index].title;
+                                  showAlertDialogMessage(context, index, true);
+                                  // _editLap(index, newTitle);
+                                },
+                                backgroundColor: Colors.blue,
+                                foregroundColor: Colors.white,
+                                icon: Icons.edit,
+                              ),
+                              SlidableAction(
+                                onPressed: (context) {
+                                  showAlertDialogMessage(context, index, false);
+                                },
+                                backgroundColor: Colors.red,
+                                foregroundColor: Colors.white,
+                                icon: Icons.delete,
+                              ),
+                            ],
                           ),
-                          title: Text(storedLaps[index].title),
+                          child: ListTile(
+                            tileColor: index % 2 == 0
+                                ? const Color.fromRGBO(239, 239, 239, 1)
+                                : Colors.white,
+                            leading: const Icon(CupertinoIcons.stopwatch),
+                            trailing: Text(
+                              widget.isHourFormat!
+                                  ? '${(storedLaps[index].hours >= 10) ? '${storedLaps[index].hours}' : '0${storedLaps[index].hours}'}:${(storedLaps[index].minutes >= 10) ? '${storedLaps[index].minutes}' : '0${storedLaps[index].minutes}'}:${(storedLaps[index].seconds >= 10) ? '${storedLaps[index].seconds}' : '0${storedLaps[index].seconds}'}'
+                                  : '${(storedLaps[index].minutes >= 10) ? '${storedLaps[index].minutes}' : '0${storedLaps[index].minutes}'}:${(storedLaps[index].seconds >= 10) ? '${storedLaps[index].seconds}' : '0${storedLaps[index].seconds}'}.${(widget.roundOffMilliSeconds(storedLaps[index].milliseconds) >= 10) ? '${widget.roundOffMilliSeconds(storedLaps[index].milliseconds)}' : '0${widget.roundOffMilliSeconds(storedLaps[index].milliseconds)}'}',
+                              style: const TextStyle(
+                                  color: Colors.green, fontSize: 15),
+                            ),
+                            title: Text(storedLaps[index].title),
+                          ),
                         ),
                       );
                     }),
