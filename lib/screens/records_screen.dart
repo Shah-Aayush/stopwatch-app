@@ -73,13 +73,14 @@ class _RecordsScreenState extends State<RecordsScreen> {
       BuildContext context, int index, bool isEdit) async {
     final String titleText = isEdit ? 'Edit Record' : 'Delete Record';
     Widget contents = Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Text(isEdit
             ? 'Change title for `${storedLaps[index].title}`'
             : 'Are you sure you want to delete `${storedLaps[index].title}` record?'),
         if (isEdit)
           Container(
-            margin: EdgeInsets.only(top: 10),
+            margin: const EdgeInsets.only(top: 10),
             child: CupertinoTextField(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(5),
