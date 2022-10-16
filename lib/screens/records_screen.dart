@@ -230,9 +230,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
                             ],
                           ),
                           child: ListTile(
-                            tileColor: index % 2 == 0
-                                ? const Color.fromRGBO(239, 239, 239, 1)
-                                : Colors.white,
+                            tileColor: Colors.white,
                             leading: const Icon(CupertinoIcons.stopwatch),
                             trailing: Text(
                               widget.isHourFormat!
