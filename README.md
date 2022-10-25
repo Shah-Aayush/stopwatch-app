@@ -1,5 +1,9 @@
 # StopWatch : A flutter app
-toddle internship task
+
+## Explore the app UI
+|Timer Screen|Records screen (1)|Records screen (2)|
+|---|---|---|
+|![](./assets/screenshots/timer-screen.png)|![](./assets/screenshots/records-screen-1.png)|![](./assets/screenshots/records-screen-2.png)|
 
 ## Basic functionalities
 -  Start / Stop timer button
@@ -39,3 +43,46 @@ records
 - Name : Aayush Shah
 - Roll Number : 19BCE245
 - College : Nirma University
+
+---
+
+# Additional documentation for my future self 
+
+- Approach and solution
+	- first created the timer logic
+	- switch for hour - minutes format conversion
+	- lap logic
+	- lap model for storing laps data
+	- timer screen UI
+	- record screen UI
+	- modularisation of code
+	- record screen logic with lap class and json,map,string parsing for local storage
+	- animations
+		- lottie flies, row animations
+	
+- Loopholes
+	- upon rotation lap screen is hidden
+	
+- possible improvements
+	- new feature of resume from existing stored lap.
+	- UI changes for different sized devices
+	- More animations and custom clock
+	- adding timer function which starts time from reverse and plays sound upon finishing.
+	
+- problems faced during assignment
+	- representation of timer
+		- solved with switch
+	- color overflow in listview builder
+		- solved by adding column and container color in parent
+		- covering scaffold with another container for statusbar color overflow problem
+	- laps disappearing/reseting when switching b/w records and timer
+		- initialcount set to zero so i defaulted it to laps.length
+	- storage structure of laps
+		- solved by creating model class for each lap
+	- how to store object list in local storage
+		- converting object list into json with mapping and parsing it to single string then storing it with sharedpreferences.
+		- encoding and decoding of the same
+	
+---
+
+*ps : this app was developed by me during the hiring process of [toddle](https://www.toddleapp.com/) company's mobile app developer role in 24 hours!*
