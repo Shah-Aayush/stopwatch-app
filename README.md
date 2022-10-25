@@ -3,7 +3,7 @@
 ## Explore the app UI
 |Timer Screen|Records screen (1)|Records screen (2)|
 |---|---|---|
-|![](./assets/screenshots/timer-screen.png)|![](./assets/screenshots/records-screen-1.png)|![](./assets/screenshots/records-screen-2.png)|
+|![](./assets/screenshots/timer-screen.png)|![](./assets/screenshots/record-screen-1.png)|![](./assets/screenshots/record-screen-2.png)|
 
 ## Basic functionalities
 -  Start / Stop timer button
